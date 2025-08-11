@@ -9,7 +9,7 @@ dotenv.config();
 
 // const stripeSecretKey = process.env.stripe_Secret_Key;
 const stripeSecretKey =
-  "sk_test_51OGbliKue2i3LW4N4ir7njHXaj35PLAJqZnFwZrhbsZRXc4JFAwInE9cpYmW8SNOREcZvFthHKY9Z3rft9vWT9FS00y6K6gRWE";
+  "fioerfjnflfjeofnfojqofjlfqofjqefnqfijfqnfijq;ionfnfqwe";
 const stripeInstance = stripe(stripeSecretKey);
 
 class PaymentController {
