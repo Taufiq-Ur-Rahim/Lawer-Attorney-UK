@@ -134,7 +134,7 @@ function Login({ title }) {
                     Don't have an account?{" "}
                   </p>
                   <Link to="/registration" style={{ display: "inline-block",paddingLeft:"4px"}}>
-                    Sign up >
+                    Sign up here
                   </Link>
                 </div>
               </form>

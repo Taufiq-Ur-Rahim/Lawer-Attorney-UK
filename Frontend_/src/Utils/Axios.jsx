@@ -1,8 +1,9 @@
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
 // Create a new instance of Axios
 const api = axios.create({
-  baseURL: 'http://localhost:800', // Replace this with your actual API base URL
+  baseURL: 'http://localhost:8000', // Backend runs on port 8000
   timeout: 5000, // Set the request timeout if needed
   headers: {
     'Content-Type': 'application/json',
@@ -27,8 +28,16 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    // Only handle specific errors, don't redirect for general errors
-    console.error('API Error:', error.response?.data || error.message);
+    // Log and show clearer toast for failed requests to aid debugging
+    const url = error.config?.url || 'unknown url';
+    const method = error.config?.method?.toUpperCase() || 'UNKNOWN';
+    const status = error.response?.status;
+    const data = error.response?.data;
+    console.error('API Error:', { method, url, status, data: data || error.message });
+
+    // Show brief toast with url and status to help identify failing endpoints
+    toast.error(`${method} ${url} — ${status || 'Network/Unknown error'}`);
+
     return Promise.reject(error);
   }
 );

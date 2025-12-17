@@ -27,8 +27,7 @@ class UserController {
         firstName: firstName,
         lastName: lastName,
         email: email,
-        password: hashedPassword,
-        confirmPassword: hashedPassword
+        password: hashedPassword
       });
 
       const result = await newUser.save();
@@ -41,9 +40,8 @@ class UserController {
   static getAllUsers = async (req, res, next) => {
     try {
       const result = await user.find()
-
       if (!result || result.length === 0) {
-        return res.status(404).json({ message: "Sorry, no lawyer is available." });
+        return res.status(200).json([]);
       }
       res.status(200).json(result);
     } catch (err) {

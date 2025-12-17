@@ -19,13 +19,7 @@ const userSchema = new Schema(
         },
         password: {
             type : String,
-            required: true,
-            unique: true
-        },
-        confirmPassword: {
-            type : String,
-            required: true,
-            unique: true
+            required: true
         },
         isUser: {
             type: Boolean,

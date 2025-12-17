@@ -10,7 +10,7 @@ const paymentSchema = new Schema({
   },
   lawyerId: {
     type: Schema.Types.ObjectId,
-    ref: 'Lawyer',
+    ref: 'lawyer',
     required: true,
   },
   amount: {

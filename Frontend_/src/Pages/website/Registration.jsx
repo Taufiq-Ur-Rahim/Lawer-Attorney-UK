@@ -26,19 +26,18 @@ function Registration({title}) {
 
     try {
       const actualData = {
-        firstName,
-        lastName,
+        firstName: firstName,
+        lastName: lastName,
         email,
         password,
-        confirmPassword,
+        confirmPassword: confirmPassword,
         cell,
         address,
         education,
-        practiceArea,
+        practiceArea: practiceArea,
         expertise,
-        isLawyer: registerAsLawyer,
       };
-
+      
       const endpoint = registerAsLawyer ? "/lawyer/register" : "/user/register";
 
       const response = await api.post(endpoint, actualData);
@@ -46,11 +45,7 @@ function Registration({title}) {
       if(response.data.success){
         toast.success(response.data.message);
 
-         if (registerAsLawyer){
-           navigate("/Login");
-        } else{
-           navigate("/login");
-        }
+        navigate("/login");
       } else {
         toast.error(response.data.message);
       }
@@ -71,6 +66,7 @@ function Registration({title}) {
       } else {
          toast.error("An error occurred during registration.");
       }
+
     }
   };
 
@@ -268,7 +264,7 @@ function Registration({title}) {
                             />
                           </div>
 
-                          <div id="div_id_Education" className="mb-3">
+                          <div id="div_id_Expertise" className="mb-3">
                             <label
                               htmlFor="id_Education"
                               className="form-label requiredField"
@@ -278,13 +274,13 @@ function Registration({title}) {
                             <input
                               onChange={(e) => setExpertise(e.target.value)}
                               type="text"
-                              name="Education"
+                              name="expertise"
                               placeholder="Expertise"
                               autoComplete="text"
                               maxLength={320}
                               className="textinput form-control"
                               required
-                              id="id_Education"
+                              id="id_Expertise"
                             />
                           </div>
 
@@ -304,7 +300,7 @@ function Registration({title}) {
                               required
                               id="id_practice_area"
                             >
-                              <option value="" disabled selected>
+                              <option value="" disabled>
                                 Select Practice Area
                               </option>
                               <option value="Child Abuse">Child Abuse</option>
@@ -351,6 +347,7 @@ function Registration({title}) {
                         </button>
                       </div>
                     </form>
+
                     <div style={{ marginBottom: "30px",marginTop: "40px"}}>
                       <h5 style={{textAlign:"center"}}>
                         OR
@@ -361,7 +358,7 @@ function Registration({title}) {
                         Already have an account?{" "}
                       </p>
                       <Link to="/login" style={{ display: "inline-block",paddingLeft:"4px" }}>
-                        Sign in >
+                        Sign in here
                       </Link>
                     </div>
                   </div>

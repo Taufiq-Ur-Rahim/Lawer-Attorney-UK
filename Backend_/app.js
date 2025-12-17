@@ -27,7 +27,9 @@ const io = new Server(server, {
   },
 });
 
-const port = process.env.PORT || 800;
+const port = process.env.PORT || 8000;
+console.log("DB URI:", process.env.db2);
+
 
 // ==================== DB Connection ====================
 const connect = async () => {

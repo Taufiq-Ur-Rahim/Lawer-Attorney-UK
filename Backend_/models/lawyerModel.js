@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { type } from "os";
 
 const { Schema } = mongoose;
 
@@ -20,7 +19,6 @@ const lawyerSchema = new Schema(
     password: {
       type: String,
       required: true,
-      unique: true,
     },
     cell: {
       type: Number,
@@ -43,7 +41,7 @@ const lawyerSchema = new Schema(
     },
     expertise: {
       type: String,
-      default: true,
+      default: "",
     },
     isLawyer: {
       type: Boolean,
@@ -53,13 +51,9 @@ const lawyerSchema = new Schema(
       type: Boolean,
       default: false,
     },
-    image: {
-      type: String,
-      required: false,
-    },
     reviews: [
       {
-        user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+        user: { type: mongoose.Schema.Types.ObjectId, ref: "user" },
         text: String,
         rating: {
           type: Number,

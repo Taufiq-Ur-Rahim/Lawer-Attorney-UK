@@ -16,7 +16,7 @@ function ChatBox({ chatId, visible }) {
 
     const fetchMessages = async () => {
       try {
-        const { data } = await api.get(`/chat/messages/${chatId}`);
+        const { data } = await api.get(`/messages/${chatId}`);
         setMessages(data);
       } catch (err) {
         console.error(err);
@@ -30,12 +30,15 @@ function ChatBox({ chatId, visible }) {
   const handleSendMessage = async () => {
     if (!newMessage.trim()) return;
     try {
-      const { data } = await api.post("/chat/messages", {
-        content: newMessage,
+      await api.post("/messages", {
         chatId,
-        sender: UserInfo._id,
+        content: newMessage,
+        senderId: UserInfo._id,
+        senderType: UserInfo?.isLawyer ? 'lawyer' : 'user',
       });
-      setMessages((prev) => [...prev, data]);
+
+      // refresh messages to get populated sender data
+      await fetchMessages();
       setNewMessage("");
     } catch (err) {
       toast.error("Message failed");
@@ -52,13 +55,17 @@ function ChatBox({ chatId, visible }) {
   return (
     <div className="chat-box border p-3 rounded mt-4" style={{ background: "#f9f9f9" }}>
       <div style={{ maxHeight: "300px", overflowY: "auto" }}>
-        {messages.map((msg, idx) => (
-          <div key={idx} className={`mb-2 ${msg.sender === UserInfo._id ? "text-end" : "text-start"}`}>
-            <div className={`p-2 rounded ${msg.sender === UserInfo._id ? "bg-primary text-white" : "bg-light"}`}>
-              {msg.content}
+        {messages.map((msg, idx) => {
+          const senderId = String(msg.sender?._id || msg.sender);
+          const mine = senderId === String(UserInfo._id);
+          return (
+            <div key={idx} className={`mb-2 ${mine ? "text-end" : "text-start"}`}>
+              <div className={`p-2 rounded ${mine ? "bg-primary text-white" : "bg-light"}`}>
+                {msg.content}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
         <div ref={messagesEndRef} />
       </div>
       <div className="d-flex mt-2">

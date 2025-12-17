@@ -1,4 +1,5 @@
 import lawyerModel from "../models/lawyerModel.js";
+import user from "../models/userModel.js";
 import createError from "../utils/error.js";
 import nodemailer from "nodemailer";
 import bcrypt from "bcrypt";
@@ -112,9 +113,8 @@ class LawyerController {
       const result = await lawyerModel.find();
 
       if (!result || result.length === 0) {
-        return res
-          .status(404)
-          .json({ message: "Sorry, no lawyer is available." });
+        // Return an empty array instead of 404 so frontend can handle empty lists
+        return res.status(200).json([]);
       }
 
       res.status(200).json(result);
@@ -127,7 +127,7 @@ class LawyerController {
   // search =======================================================
   static searchLawyersByAddress = async (req, res, next) => {
     try {
-      const { data } = req.body.params;
+      const address = req.body?.params?.address || req.body?.address || req.query?.address;
 
       if (!address) {
         return res

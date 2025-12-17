@@ -1,15 +1,15 @@
 import Rating from "../models/ratingModel.js";
- import createError from "../utils/error.js";
-import lawyerModel from "../models/lawyerModel.js";
+import createError from "../utils/error.js";
+import Payment from "../models/paymentModel.js";
 
 class RatingController {
   static createRating = async (req, res, next) => {
     try {
       const { userId, lawyerId, rating, comments } = req.body;
 
-       const hireRecord = await lawyerModel.findOne({ userId, lawyerId });
+      const hireRecord = await Payment.findOne({ userId, lawyerId, status: 'Completed' });
       if (!hireRecord) {
-         return next(createError(403, "You can only rate lawyers you've hired"));
+        return next(createError(403, "You can only rate lawyers you've hired"));
       }
 
        const newRating = new Rating({
