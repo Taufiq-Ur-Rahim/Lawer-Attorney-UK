@@ -19,6 +19,7 @@ function AttorneyDetails({ title }) {
   const [amount, setAmount] = useState(0);
   const [hasHired, setHasHired] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [processingPayment, setProcessingPayment] = useState(false);
 
   // Check authentication on component mount
   useEffect(() => {
@@ -54,9 +55,16 @@ function AttorneyDetails({ title }) {
   }, [object, navigate]);
 
   const handleToken = async (token) => {
+    if (processingPayment) return;
+    if (hasHired) {
+      toast.info('Already hired this lawyer');
+      return;
+    }
+    setProcessingPayment(true);
     try {
       if (amount <= 0) {
         toast.error("Please enter a valid amount greater than 0");
+        setProcessingPayment(false);
         return;
       }
       const userInfo = JSON.parse(localStorage.getItem("UserInfo"));
@@ -71,9 +79,11 @@ function AttorneyDetails({ title }) {
       console.log(result);
       toast.success("Payment Completed Successfully");
       setHasHired(true);
+      setProcessingPayment(false);
     } catch (error) {
       console.error("Payment Error:", error.response || error.message);
       toast.error(error.response?.data?.error || "Payment failed");
+      setProcessingPayment(false);
     }
   };
 
