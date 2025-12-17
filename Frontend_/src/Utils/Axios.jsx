@@ -28,15 +28,18 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    // Log and show clearer toast for failed requests to aid debugging
+    // Log request error details
     const url = error.config?.url || 'unknown url';
     const method = error.config?.method?.toUpperCase() || 'UNKNOWN';
     const status = error.response?.status;
     const data = error.response?.data;
     console.error('API Error:', { method, url, status, data: data || error.message });
 
-    // Show brief toast with url and status to help identify failing endpoints
-    toast.error(`${method} ${url} — ${status || 'Network/Unknown error'}`);
+    // Avoid spamming toasts for client-side validation errors (4xx).
+    // Let component-level handlers show validation messages.
+    if (!status || status >= 500) {
+      toast.error(`${method} ${url} — ${status || 'Network/Unknown error'}`);
+    }
 
     return Promise.reject(error);
   }

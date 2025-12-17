@@ -36,6 +36,51 @@ const connect = async () => {
   try {
     await mongoose.connect(process.env.db2);
     console.log('✅ MongoDB connected successfully');
+    // Clean up any old indexes created by previous schema (non-destructive)
+    try {
+      const db = mongoose.connection.db;
+      // Attempt to drop obsolete indexes that referenced confirmPassword or password uniqueness
+      const usersColl = db.collection('users');
+      const userIndexes = await usersColl.indexes();
+      for (const idx of userIndexes) {
+        if (idx.name === 'confirmPassword_1') {
+          try {
+            await usersColl.dropIndex('confirmPassword_1');
+            console.log('✅ Dropped obsolete index confirmPassword_1 on users collection');
+          } catch (e) {
+            console.warn('Could not drop confirmPassword_1 index:', e.message);
+          }
+        }
+        if (idx.name === 'password_1' && idx.unique) {
+          try {
+            await usersColl.dropIndex('password_1');
+            console.log('✅ Dropped obsolete unique index password_1 on users collection');
+          } catch (e) {
+            console.warn('Could not drop password_1 index on users:', e.message);
+          }
+        }
+      }
+
+      // Check lawyers collection as well
+      const lawyersColl = db.collection('lawyers');
+      try {
+        const lawyerIndexes = await lawyersColl.indexes();
+        for (const idx of lawyerIndexes) {
+          if (idx.name === 'password_1' && idx.unique) {
+            try {
+              await lawyersColl.dropIndex('password_1');
+              console.log('✅ Dropped obsolete unique index password_1 on lawyers collection');
+            } catch (e) {
+              console.warn('Could not drop password_1 index on lawyers:', e.message);
+            }
+          }
+        }
+      } catch (e) {
+        // collection may not exist yet
+      }
+    } catch (e) {
+      console.warn('Index cleanup skipped:', e.message);
+    }
   } catch (error) {
     console.error('❌ Failed to connect to MongoDB:', error);
   }

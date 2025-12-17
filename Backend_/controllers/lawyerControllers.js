@@ -52,40 +52,62 @@ class LawyerController {
         practiceArea,
         expertise,
       } = req.body;
+      // Basic validation for required lawyer fields
+      const validationErrors = [];
+      if (!firstName) validationErrors.push({ msg: 'First name is required' });
+      if (!email) validationErrors.push({ msg: 'Email is required' });
+      if (!password) validationErrors.push({ msg: 'Password is required' });
+      if (!confirmPassword) validationErrors.push({ msg: 'Confirm password is required' });
+      if (password && confirmPassword && password !== confirmPassword) validationErrors.push({ msg: 'Passwords do not match' });
+      if (!cell) validationErrors.push({ msg: 'Cell number is required' });
+      if (!address) validationErrors.push({ msg: 'Address is required' });
+      if (!education) validationErrors.push({ msg: 'Education is required' });
+      if (!practiceArea) validationErrors.push({ msg: 'Practice area is required' });
 
-      if (password !== confirmPassword) {
-        return res
-          .status(400)
-          .json({ success: false, message: "Passwords do not match" });
+      if (validationErrors.length > 0) {
+        return res.status(422).json({ errors: validationErrors });
       }
 
+      // Prevent duplicate emails across both users and lawyers
       const existingLawyer = await lawyerModel.findOne({ email });
-      if (existingLawyer) {
-        return res
-          .status(400)
-          .json({ success: false, message: "The lawyer is already exist" });
+      const existingUser = await user.findOne({ email });
+      if (existingLawyer || existingUser) {
+        return res.status(400).json({ success: false, message: 'Email is already registered' });
       }
 
       const saltRounds = 10;
       const hashPassword = await bcrypt.hash(password, saltRounds);
+
+      // Ensure proper types
+      const numericCell = Number(cell);
+      if (Number.isNaN(numericCell)) {
+        return res.status(422).json({ errors: [{ msg: 'Cell must be a number' }] });
+      }
 
       const newLawyer = new lawyerModel({
         firstName: firstName,
         lastName: lastName,
         email: email,
         password: hashPassword,
-        cell: cell,
+        cell: numericCell,
         address: address,
         education: education,
         practiceArea: practiceArea,
-        expertise: expertise,
+        expertise: expertise || '',
         isLawyer: true,
       });
 
-      await newLawyer.save();
-      res
-        .status(200)
-        .json({ success: true, message: "Lawyer has been created" });
+      try {
+        await newLawyer.save();
+        return res.status(201).json({ success: true, message: 'Lawyer has been created', data: { id: newLawyer._id } });
+      } catch (saveErr) {
+        console.error('Error saving new lawyer:', saveErr);
+        if (saveErr.name === 'ValidationError') {
+          const errs = Object.values(saveErr.errors).map(e => ({ msg: e.message }));
+          return res.status(422).json({ errors: errs });
+        }
+        return next(saveErr);
+      }
     } catch (err) {
       next(err);
     }

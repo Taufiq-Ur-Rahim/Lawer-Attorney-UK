@@ -8,6 +8,7 @@ class UserController {
 
   static register = async (req, res, next) => {
     try {
+      console.log('POST /user/register payload keys:', Object.keys(req.body));
       const { firstName, lastName, email, password, confirmPassword } = req.body;
 
       // Check if the passwords match
@@ -33,6 +34,12 @@ class UserController {
       const result = await newUser.save();
       res.status(200).json({ success: true, message: "User has been created" });
     } catch (err) {
+      console.error('Error in UserController.register:', err);
+      if (err && err.code === 11000) {
+        // Duplicate key error
+        const dupFields = Object.keys(err.keyValue || {}).join(', ');
+        return res.status(400).json({ success: false, message: `Duplicate field(s): ${dupFields}` });
+      }
       next(err);
     }
   }

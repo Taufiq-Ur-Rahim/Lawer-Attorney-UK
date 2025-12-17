@@ -7,10 +7,15 @@ import { fail } from "assert";
 
 dotenv.config();
 
-// const stripeSecretKey = process.env.stripe_Secret_Key;
-const stripeSecretKey =
-  "fioerfjnflfjeofnfojqofjlfqofjqefnqfijfqnfijqionfnfqwe";
-const stripeInstance = stripe(stripeSecretKey);
+// Read Stripe secret key from environment for security.
+// Accept both `STRIPE_SECRET_KEY` and legacy `stripe_Secret_Key` (fallback).
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY || process.env.stripe_Secret_Key || process.env.stripe_secret_key;
+if (!stripeSecretKey) {
+  console.warn('⚠️ Stripe secret key is not set (checked STRIPE_SECRET_KEY and stripe_Secret_Key). Payments will fail until you provide a valid key in .env');
+} else {
+  console.log('Using Stripe key from env, length:', String(stripeSecretKey).length);
+}
+const stripeInstance = stripe(stripeSecretKey || '');
 
 class PaymentController {
   // Method to create a payment
@@ -69,6 +74,11 @@ class PaymentController {
 
     if (!token || !amount || amount <= 0) {
       return res.status(400).json({ error: "Invalid request data" });
+    }
+
+    if (!stripeSecretKey) {
+      console.error('Payment attempted but STRIPE_SECRET_KEY is not configured');
+      return res.status(500).json({ error: 'Payment configuration error. Contact admin.' });
     }
 
     try {
